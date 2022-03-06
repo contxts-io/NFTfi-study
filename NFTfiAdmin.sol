@@ -47,6 +47,7 @@ contract NFTfiAdmin is Ownable, Pausable, ReentrancyGuard {
     //         this contract if they eventually deprecate it, as well as a check
     //         to ensure that the loan duration never exceeds the space alotted
     //         for it in the loan struct.
+    /// 이 weeks는 solidity에 내장된 기본 변수이다. 실제 한 주를 의미한다.
     uint256 public maximumLoanDuration = 53 weeks;
 
     // @notice The maximum number of active loans allowed on this platform.

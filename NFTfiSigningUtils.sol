@@ -142,6 +142,7 @@ contract NFTfiSigningUtils {
     // @param  _lender - The address of the lender. The lender can change their
     //         address by transferring the NFTfi ERC721 token that they
     //         received when the loan began.
+    /// 조기 상환시 이자를 다 받을 것인지, 아니면 비례해서 받을지 결정하는 boolean parameter
     // @param  _interestIsProRated - A boolean value determining whether the
     //         interest will be pro-rated if the loan is repaid early, or
     //         whether the borrower will simply pay maximumRepaymentAmount.

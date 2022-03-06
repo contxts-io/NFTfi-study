@@ -58,6 +58,8 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
     /* DATA TYPES */
     /* ********** */
 
+    /// 어느 하나가 256bit라면, 다른 게 128bit라도 실질적으로 256bit로 취급됨.
+    /// 그래서 그냥 256bit로 통일한 것.
     // @notice The main Loan struct. The struct fits in six 256-bits words due
     //         to Solidity's rules for struct packing.
     struct Loan {
@@ -95,6 +97,7 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
         // repaid. The fee is stored here to prevent an attack where the
         // contract admins could adjust the fee right before a loan is repaid,
         // and take all of the interest earned.
+        /// 수수료가 loan이 시작됐을 때로 고정됨. 갑자기 수수료 올라갔을 때 소급되지 않음.
         uint32 loanAdminFeeInBasisPoints;
         // The ERC721 contract of the NFT collateral
         address nftCollateralContract;
@@ -462,6 +465,7 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
         // Transfer principal from lender to borrower.
         IERC20(loan.loanERC20Denomination).transferFrom(_lender, msg.sender, loan.loanPrincipalAmount);
 
+        /// 이 채권증서가 NFT로 발행됨! 시장에서 거래할 수 있음.
         // Issue an ERC721 promissory note to the lender that gives them the
         // right to either the principal-plus-interest or the collateral.
         _mint(_lender, loan.loanId);
@@ -487,6 +491,7 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
     //         their loan. It can be called at any time after the loan has
     //         begun. The borrower will pay a pro-rata portion of their
     //         interest if the loan is paid off early. The interest will
+    /// 대출기간 끝나고도 lender가 liquidate하지 않으면 그 후에도 갚을 수 있음! 단 이자율은 지불해야 함.
     //         continue to accrue after the loan has expired. This function can
     //         continue to be called by the borrower even after the loan has
     //         expired to retrieve their NFT. Note that the lender can call
@@ -542,6 +547,8 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
         // Transfer principal-plus-interest-minus-fees from borrower to lender
         IERC20(loan.loanERC20Denomination).transferFrom(loan.borrower, lender, payoffAmount);
 
+        /// 여기서 owner는 이 컨트랙트를 배포한 address를 의미한다.
+        /// 이 컨트랙트가 상속한 Ownable contract의 constructor에서 배포자를 owner로 선언해준다.
         // Transfer fees from borrower to admins
         IERC20(loan.loanERC20Denomination).transferFrom(loan.borrower, owner(), adminFee);
 
@@ -748,7 +755,9 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
     //         the ERC20 currency used to pay this loan.
     function _computeInterestDue(uint256 _loanPrincipalAmount, uint256 _maximumRepaymentAmount, uint256 _loanDurationSoFarInSeconds, uint256 _loanTotalDurationAgreedTo, uint256 _loanInterestRateForDurationInBasisPoints) internal pure returns (uint256) {
         uint256 interestDueAfterEntireDuration = (_loanPrincipalAmount.mul(_loanInterestRateForDurationInBasisPoints)).div(uint256(10000));
+        /// 그냥 기간만큼 일할계산한 것이다. 이자율이 50%인데 반 년 지났으면 25% 이런 식.
         uint256 interestDueAfterElapsedDuration = (interestDueAfterEntireDuration.mul(_loanDurationSoFarInSeconds)).div(_loanTotalDurationAgreedTo);
+        /// maximum이 있으면 그 이상으로는 안 거둬간다.
         if(_loanPrincipalAmount.add(interestDueAfterElapsedDuration) > _maximumRepaymentAmount){
             return _maximumRepaymentAmount.sub(_loanPrincipalAmount);
         } else {
@@ -773,6 +782,7 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
     	return (_interestDue.mul(_adminFeeInBasisPoints)).div(10000);
     }
 
+    /// 크립토키티가 ERC721을 따르지 않기 때문에 예외처리가 포함된 NFT transfer 함수다.
     // @notice We call this function when we wish to transfer an NFT from our
     //         contract to another destination. Since some prominent NFT
     //         contracts do not conform to the same standard, we try multiple
@@ -804,6 +814,7 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
         }
     }
 
+    /// selector 어쩌구는 gas fee 아끼는 테크닉이라 별도로 다루지 않고 넘어감
     // @notice This function attempts to call transferFrom() on the specified
     //         NFT contract, returning whether it succeeded.
     // @notice We only call this function from within _transferNftToAddress(),
@@ -819,6 +830,7 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
         // @notice Some NFT contracts will not allow you to approve an NFT that
         //         you own, so we cannot simply call approve() here, we have to
         //         try to call it in a manner that allows the call to fail.
+        /// approve했는지 확인해주는 함수
         _nftContract.call(abi.encodeWithSelector(IERC721(_nftContract).approve.selector, address(this), _nftId));
 
         // @notice Some NFT contracts will not allow you to call transferFrom()
@@ -829,6 +841,7 @@ contract NFTfi is NFTfiAdmin, NFTfiSigningUtils, ERC721 {
         return success;
     }
 
+    /// 사실상 크립토키티를 위한 특별함수
     // @notice This function attempts to call transfer() on the specified
     //         NFT contract, returning whether it succeeded.
     // @notice We only call this function from within _transferNftToAddress(),
