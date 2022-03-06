@@ -2,6 +2,7 @@ pragma solidity ^0.5.16;
 
 import "./openzepplin/ECDSA.sol";
 
+/// 다른 기능은 아무것도 안 하고 해당 파라미터 값에 대해서 유저가 서명했다는 것만 기록해주는 보조 contract
 // @title  Helper contract for NFTfi. This contract manages verifying signatures
 //         from off-chain NFTfi orders.
 // @author smartcontractdev.eth, creator of wrappedkitties.eth, cwhelper.eth,
@@ -70,6 +71,7 @@ contract NFTfiSigningUtils {
         uint256 _borrowerNonce,
         address _nftCollateralContract,
         address _borrower,
+        // 이 함수 실행될 동안 한 번 쓰이고 버릴 거니까 storage가 아니라 meomory
         bytes memory _borrowerSignature
     ) public view returns(bool) {
         if(_borrower == address(0)){
@@ -134,6 +136,7 @@ contract NFTfiSigningUtils {
     //         off-chain order that contains that nonce.
     // @param  _nftCollateralContract - The ERC721 contract of the NFT
     //         collateral
+    /// 주로 DAI와 같은 stablecoin을 쓴다. DAI는 물론 ERC20 Contract이다.
     // @param  _loanERC20Denomination - The ERC20 contract of the currency being
     //         used as principal/interest for this loan.
     // @param  _lender - The address of the lender. The lender can change their

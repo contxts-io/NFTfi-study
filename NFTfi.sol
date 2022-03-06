@@ -2,6 +2,7 @@ pragma solidity ^0.5.16;
 
 import "./openzepplin/SafeMath.sol";
 import "./openzepplin/ERC721.sol";
+import "./openzepplin/IERC20.sol";
 
 import "./NFTfiAdmin.sol";
 import "./NFTfiSigningUtils.sol";
