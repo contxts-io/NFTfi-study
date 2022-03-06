@@ -1,0 +1,23 @@
+{
+  "name": "nftfi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "solc": "^0.5.16"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/contxts-io/NFTfi-study.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/contxts-io/NFTfi-study/issues"
+  },
+  "homepage": "https://github.com/contxts-io/NFTfi-study#readme"
+}
