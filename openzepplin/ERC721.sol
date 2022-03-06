@@ -2,6 +2,9 @@ pragma solidity ^0.5.16;
 
 import "./ERC165.sol";
 import "./IERC721.sol";
+import "./SafeMath.sol";
+import "./Address.sol";
+import "./IERC721Receiver.sol";
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
